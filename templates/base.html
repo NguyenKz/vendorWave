@@ -57,7 +57,6 @@
                 </div>
                 <div class="user_control">
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
                             <a id="usernameDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{ user.username }}
                             </a>
@@ -68,9 +67,8 @@
                                     <button type="submit" class="dropdown-item">Logout</button>
                                 </form>
                             </div>
-                        </li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="/user/sign-in/">Login</a></li>
+                        <a class="nav-link" href="/user/sign-in/">Login</a>
                     {% endif %}
                 </div>
             </div>
