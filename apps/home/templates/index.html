@@ -1,0 +1,32 @@
+<!-- index.html -->
+{% extends 'base.html' %}
+
+{% block title %}Home - My Website{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome to My Website!</h1>
+        <p class="lead">This is a simple and clean website template.</p>
+        <hr class="my-4">
+        <p>Feel free to explore and learn more about us.</p>
+        <a class="btn btn-primary btn-lg" href="/about/" role="button">Learn more</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <h2>About Us</h2>
+            <p>Learn about our company and mission.</p>
+            <a class="btn btn-secondary" href="/about/" role="button">Learn more &raquo;</a>
+        </div>
+        <div class="col-md-4">
+            <h2>Contact</h2>
+            <p>Get in touch with us. We would love to hear from you!</p>
+            <a class="btn btn-secondary" href="/contact/" role="button">Contact us &raquo;</a>
+        </div>
+        <div class="col-md-4">
+            <h2>Login</h2>
+            <p>Already a member? Log in to access exclusive content.</p>
+            <a class="btn btn-secondary" href="/login/" role="button">Login &raquo;</a>
+        </div>
+    </div>
+{% endblock %}

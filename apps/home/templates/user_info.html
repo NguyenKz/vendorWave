@@ -1,0 +1,27 @@
+<!-- user_info.html -->
+{% extends 'base.html' %}
+
+{% block title %}User Information{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="mb-0">User Information</h2>
+          </div>
+          <div class="card-body">
+            {% if user.is_authenticated %}
+              <p>Welcome, <strong>{{ user.username }}</strong>!</p>
+              <p>Email: <em>{{ user.email }}</em></p>
+              <!-- Add any other user information you want to display -->
+            {% else %}
+              <p>You are not logged in.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
