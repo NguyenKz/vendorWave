@@ -9,8 +9,7 @@
                         <h1 class="text-center">Login</h1>
                     </div>
                     <div class="card-body">
-                        <form action="#" method="post">
-                            {% csrf_token %}
+                        <form id="loginForm">
                             <div class="form-group">
                                 <label for="username"></label>
                                 <input class="form-control" type="text" name="username" id="username" placeholder="Username" required="">
@@ -19,7 +18,7 @@
                                 <label for="password"></label>
                                 <input class="form-control" type="password" name="password" id="password" placeholder="Password" required="">
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">LOGIN</button>
+                            <button type="button" class="btn btn-primary btn-block" onclick="login()">LOGIN</button>
                         </form>
                         <p class="mt-3 text-center">Don't have an account? <a href="/user/sign-up/">Sign Up Now!</a></p>
                     </div>
@@ -27,4 +26,25 @@
             </div>
         </div>
     </div>
+    <script>
+        function login() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            fetch('/user/token/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify({ username: username, password: password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = '/';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 {% endblock %}
