@@ -7,12 +7,15 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from rest_framework import status
-
+from rest_framework.request import Request
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
 class LoginView(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request:Request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return Response(status=status.HTTP_400_BAD_REQUEST,data={'detail':'You are alredy login.'})
+        
         username = request.data.get('username')
         password = request.data.get('password')
 
@@ -42,6 +45,8 @@ class LoginView(APIView):
 def sign_in(request):
     return render(request, 'sign_in.html')
 
+def sign_up(request):
+    return render(request, 'sign_up.html')
 
 class LogoutView(APIView):
     def post(self, request, *args, **kwargs):

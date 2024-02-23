@@ -4,14 +4,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
-
+from django.core.handlers.wsgi import WSGIRequest
 User = get_user_model()
 class JWTMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-
-    def __call__(self, request):
-        # Get the token from the request header
+        
+    def push_user(self,request:WSGIRequest):
         access = request.COOKIES.get("access")
         refresh = request.COOKIES.get("refresh")
         try:
@@ -22,3 +21,7 @@ class JWTMiddleware:
             pass
         response = self.get_response(request)
         return response
+    
+    def __call__(self, request:WSGIRequest):
+        return self.push_user(request=request)
+
