@@ -41,3 +41,22 @@ class LoginView(APIView):
 
 def sign_in(request):
     return render(request, 'sign_in.html')
+
+
+class LogoutView(APIView):
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            refresh_token = request.COOKIES.get('refresh')
+            if refresh_token:
+                try:
+                    token = RefreshToken(refresh_token)
+                    token.blacklist()
+                except Exception as e:
+                    pass
+            response = Response()
+            response.delete_cookie('access')
+            response.delete_cookie('refresh')
+            response.data = {'detail': 'Logout successful'}
+            return response
+        return Response(status=status.HTTP_200_OK)
+        

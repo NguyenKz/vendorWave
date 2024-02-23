@@ -25,6 +25,11 @@
         }
     </style>
     <script>
+        function getCookie(name) {
+            var value = "; " + document.cookie;
+            var parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
         document.addEventListener('DOMContentLoaded', function () {
             var usernameElement = document.getElementById('usernameDropdown');
             var dropdownMenu = document.getElementById('userDropdownMenu');
@@ -32,6 +37,30 @@
             if (usernameElement && dropdownMenu) {
                 usernameElement.addEventListener('click', function () {
                     dropdownMenu.classList.toggle('show');
+                });
+            }
+
+            var logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function () {
+                    var accessToken = getCookie('access');
+                    fetch("/user/logout/", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Authorization': 'Bearer ' + accessToken,
+                        },
+                        credentials: 'same-origin' // include cookies in the request
+                    }).then(function (response) {
+                        if (response.ok) {
+                            console.log('Logout successful');
+                            window.location.href = '/';
+                        } else {
+                            console.error('Logout failed');
+                        }
+                    });
                 });
             }
         });
@@ -62,10 +91,7 @@
                             </a>
                             <div id="userDropdownMenu" class="dropdown-menu" aria-labelledby="usernameDropdown">
                                 <a class="dropdown-item" href="{% url 'user_info' %}">User Info</a>
-                                <form method="post" action="{% url 'logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
+                                <button type="button" id="logoutButton" class="dropdown-item">Logout</button>
                             </div>
                     {% else %}
                         <a class="nav-link" href="/user/login/">Login</a>
