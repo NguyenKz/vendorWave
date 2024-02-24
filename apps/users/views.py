@@ -5,7 +5,7 @@ from .serializers import RegisterSerializer, UserSerializer
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, logout
 from rest_framework import status
 from rest_framework.request import Request
 class RegisterView(generics.CreateAPIView):
@@ -26,17 +26,22 @@ class LoginView(APIView):
 
         if not user.check_password(password):
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+        login(request, user)
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
         response = Response()
+        request.session.create()
+        session_id = request.session.session_key
+        
         response.set_cookie(key="access",value=access_token)
         response.set_cookie(key="refresh",value=refresh_token)
+        # response.set_cookie(key="sessionid",value=session_id)
         
         response.data = {
             'access': access_token,
             'refresh': refresh_token,
+            # "sessionid":session_id
         }
         response.status_code = status.HTTP_200_OK
         return response
@@ -61,7 +66,9 @@ class LogoutView(APIView):
             response = Response()
             response.delete_cookie('access')
             response.delete_cookie('refresh')
+            response.delete_cookie('sessionid')
             response.data = {'detail': 'Logout successful'}
+            logout(request=request)
             return response
         return Response(status=status.HTTP_200_OK)
         

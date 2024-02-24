@@ -1,0 +1,107 @@
+<!-- Trong tệp my_products.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Products{% endblock %}
+
+{% block content %}
+  <h2>My Products</h2>
+
+
+  {% if user_products %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col" style="width: 100px;">Image</th>
+          <th scope="col">Product Price</th>
+          <th scope="col">SKU</th>
+          <th scope="col">Brand</th>
+          <th scope="col">Model</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="file" id="newProductImage" accept="image/*" style="width: 100px;"></td>
+          <td><input type="number" id="newProductPrice"></td>
+          <td><input type="text" id="newProductSKU"></td>
+          <td><input type="text" id="newProductBrand"></td>
+          <td><input type="text" id="newProductModel"></td>
+          <td><button class="btn btn-success" onclick="saveNewProduct()"  style="width: 70px;">Save</button></td>
+        </tr>
+        {% for product in user_products %}
+          <tr>
+            <td><img src="{{ product.image.url }}" alt="Product Image" style="height: 50px;"></td>
+            <td>${{ product.price }}</td>
+            <td>{{ product.sku }}</td>
+            <td>{{ product.brand }}</td>
+            <td>{{ product.model }}</td>
+            <td>
+              <button class="btn btn-danger" onclick="deleteProduct({{ product.id }})" style="width: 70px;">Delete</button>
+              <!-- Thêm các thao tác khác nếu cần -->
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You don't have any products yet.</p>
+  {% endif %}
+
+  <script>
+    function saveNewProduct() {
+  const newProductPrice = document.getElementById('newProductPrice').value;
+  const newProductSKU = document.getElementById('newProductSKU').value;
+  const newProductBrand = document.getElementById('newProductBrand').value;
+  const newProductModel = document.getElementById('newProductModel').value;
+  const newProductImage = document.getElementById('newProductImage').files[0];
+
+  const requestBody = new FormData();
+  requestBody.append('price', newProductPrice);
+  requestBody.append('sku', newProductSKU);
+  requestBody.append('brand', newProductBrand);
+  requestBody.append('model', newProductModel);
+  requestBody.append('image', newProductImage);
+
+  fetch('/product/create/', {
+    method: 'POST',
+    headers:{
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Authorization': getAuthorization(),
+    },
+    body: requestBody,
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Product created:', data);
+    window.location.href = "/";
+  })
+  .catch(error => console.error('Error creating product:', error));
+}
+
+
+    function deleteProduct(productId) {
+      fetch(`/api/products/${productId}/`, {
+        method: 'DELETE',
+        headers: makeHeader(),
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Product deleted:', productId);
+          // Cập nhật danh sách sản phẩm hoặc làm mới trang
+        } else {
+          console.error('Error deleting product:', response.statusText);
+        }
+      })
+      .catch(error => console.error('Error deleting product:', error));
+    }
+  </script>
+  <style>
+    /* Add this style to control the max width and height of the images */
+    .product-image {
+      max-width: 100px;
+      max-height: 100px;
+    }
+  </style>
+
+{% endblock %}

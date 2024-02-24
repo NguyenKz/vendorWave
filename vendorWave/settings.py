@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'decouple'
+    'decouple',
+    'apps.merchants.apps.MerchantsConfig',
+    'apps.products.apps.ProductsConfig'
 ]
 
 MIDDLEWARE = [
@@ -145,3 +147,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(seconds=int(config("JWT_ACCESS_EXPIRATION_DELTA",15))),
     'REFRESH_TOKEN_LIFETIME': timedelta(seconds= int(config("JWT_REFRESH_EXPIRATION_DELTA",30*24*3600))),
 }
+
+# settings.py
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
