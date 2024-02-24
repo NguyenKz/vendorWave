@@ -1,27 +1,67 @@
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import RegisterSerializer, UserSerializer
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from .forms import SignUpForm, SignInForm
+from rest_framework import status
+from rest_framework.request import Request
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
 
-def sign_up(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return render(request, 'sign_up.html', {'form': form})#redirect('home')  # Redirect to your home page
-    else:
-        form = SignUpForm()
-    return render(request, 'sign_up.html', {'form': form})
+class LoginView(APIView):
+    def post(self, request:Request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return Response(status=status.HTTP_400_BAD_REQUEST,data={'detail':'You are alredy login.'})
+        
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if not user.check_password(password):
+            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        response = Response()
+        response.set_cookie(key="access",value=access_token)
+        response.set_cookie(key="refresh",value=refresh_token)
+        
+        response.data = {
+            'access': access_token,
+            'refresh': refresh_token,
+        }
+        response.status_code = status.HTTP_200_OK
+        return response
+
 
 def sign_in(request):
-    if request.method == 'POST':
-        form = SignInForm(request, request.POST)
-        if form.is_valid():
-            login(request, form.get_user())
-            return redirect('/')  # Redirect to your home page
-    else:
-        form = SignInForm()
-    return render(request, 'sign_in.html', {'form': form})
+    return render(request, 'sign_in.html')
+
+def sign_up(request):
+    return render(request, 'sign_up.html')
+
+class LogoutView(APIView):
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            refresh_token = request.COOKIES.get('refresh')
+            if refresh_token:
+                try:
+                    token = RefreshToken(refresh_token)
+                    token.blacklist()
+                except Exception as e:
+                    pass
+            response = Response()
+            response.delete_cookie('access')
+            response.delete_cookie('refresh')
+            response.data = {'detail': 'Logout successful'}
+            return response
+        return Response(status=status.HTTP_200_OK)
+        
