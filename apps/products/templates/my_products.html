@@ -4,104 +4,152 @@
 {% block title %}My Products{% endblock %}
 
 {% block content %}
-  <h2>My Products</h2>
+<h2>My Products</h2>
 
 
-  {% if user_products %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col" style="width: 100px;">Image</th>
-          <th scope="col">Product Price</th>
-          <th scope="col">SKU</th>
-          <th scope="col">Brand</th>
-          <th scope="col">Model</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><input type="file" id="newProductImage" accept="image/*" style="width: 100px;"></td>
-          <td><input type="number" id="newProductPrice"></td>
-          <td><input type="text" id="newProductSKU"></td>
-          <td><input type="text" id="newProductBrand"></td>
-          <td><input type="text" id="newProductModel"></td>
-          <td><button class="btn btn-success" onclick="saveNewProduct()"  style="width: 70px;">Save</button></td>
-        </tr>
-        {% for product in user_products %}
-          <tr>
-            <td><img src="{{ product.image.url }}" alt="Product Image" style="height: 50px;"></td>
-            <td>${{ product.price }}</td>
-            <td>{{ product.sku }}</td>
-            <td>{{ product.brand }}</td>
-            <td>{{ product.model }}</td>
-            <td>
-              <button class="btn btn-danger" onclick="deleteProduct({{ product.id }})" style="width: 70px;">Delete</button>
-              <!-- Thêm các thao tác khác nếu cần -->
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>You don't have any products yet.</p>
-  {% endif %}
 
-  <script>
-    function saveNewProduct() {
-  const newProductPrice = document.getElementById('newProductPrice').value;
-  const newProductSKU = document.getElementById('newProductSKU').value;
-  const newProductBrand = document.getElementById('newProductBrand').value;
-  const newProductModel = document.getElementById('newProductModel').value;
-  const newProductImage = document.getElementById('newProductImage').files[0];
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col" style="width: 100px;">Image</th>
+      <th scope="col">Product Price</th>
+      <th scope="col">SKU</th>
+      <th scope="col">Brand</th>
+      <th scope="col">Model</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="file" id="newProductImage" accept="image/*" style="width: 100px;"></td>
+      <td><input type="number" id="newProductPrice"></td>
+      <td><input type="text" id="newProductSKU"></td>
+      <td><input type="text" id="newProductBrand"></td>
+      <td><input type="text" id="newProductModel"></td>
+      <td><input type="number" id="newProductQuantity"></td>
+      <td><button class="btn btn-success" onclick="saveNewProduct()" style="width: 70px;">Save</button></td>
+    </tr>
+    {% if user_products %}
+      {% for product in user_products %}
+      <tr>
+        <td><img src="{{ product.image.url }}" alt="Product Image" style="height: 50px;"></td>
+        <td>${{ product.price }}</td>
+        <td>{{ product.sku }}</td>
+        <td>{{ product.brand }}</td>
+        <td>{{ product.model }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>
+          <button class="btn btn-danger" onclick="deleteProduct({{ product.id }})" style="width: 70px;">Delete</button>
+          <!-- Thêm các thao tác khác nếu cần -->
+        </td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  </tbody>
+</table>
 
-  const requestBody = new FormData();
-  requestBody.append('price', newProductPrice);
-  requestBody.append('sku', newProductSKU);
-  requestBody.append('brand', newProductBrand);
-  requestBody.append('model', newProductModel);
-  requestBody.append('image', newProductImage);
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this product?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="hiddenConfirmDelete()">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDeleteProduct()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  fetch('/product/create/', {
-    method: 'POST',
-    headers:{
+<script>
+  function saveNewProduct() {
+    const newProductPrice = document.getElementById('newProductPrice').value;
+    const newProductSKU = document.getElementById('newProductSKU').value;
+    const newProductBrand = document.getElementById('newProductBrand').value;
+    const newProductModel = document.getElementById('newProductModel').value;
+    const newProductImage = document.getElementById('newProductImage').files[0];
+
+    const requestBody = new FormData();
+    requestBody.append('price', newProductPrice);
+    requestBody.append('sku', newProductSKU);
+    requestBody.append('brand', newProductBrand);
+    requestBody.append('model', newProductModel);
+    requestBody.append('image', newProductImage);
+
+    fetch('/product/create/', {
+      method: 'POST',
+      headers: {
         'X-CSRFToken': '{{ csrf_token }}',
         'X-Requested-With': 'XMLHttpRequest',
         'Authorization': getAuthorization(),
-    },
-    body: requestBody,
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Product created:', data);
-    window.location.href = "/";
-  })
-  .catch(error => console.error('Error creating product:', error));
-}
+      },
+      body: requestBody,
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Product created:', data);
+        window.location.reload();
+      })
+      .catch(error => console.error('Error creating product:', error));
+  }
 
+  function hiddenConfirmDelete(){
+    $('#confirmDeleteModal').modal('hide');
+    // Reset the global variable
+    window.productIdToDelete = null;
+  }
+  // Updated JavaScript function to show the confirmation modal
+  function deleteProduct(productId) {
+    // Set a global variable to store the product ID to be deleted
+    window.productIdToDelete = productId;
 
-    function deleteProduct(productId) {
-      fetch(`/api/products/${productId}/`, {
+    // Show the confirmation modal
+    $('#confirmDeleteModal').modal('show');
+  }
+
+  // Function to handle confirmed deletion
+  function confirmDeleteProduct() {
+    const productId = window.productIdToDelete;
+
+    if (productId) {
+      fetch(`/product/delete/${productId}/`, {
         method: 'DELETE',
         headers: makeHeader(),
       })
-      .then(response => {
-        if (response.ok) {
-          console.log('Product deleted:', productId);
-          // Cập nhật danh sách sản phẩm hoặc làm mới trang
-        } else {
-          console.error('Error deleting product:', response.statusText);
-        }
-      })
-      .catch(error => console.error('Error deleting product:', error));
+        .then(response => {
+          if (response.ok) {
+            console.log('Product deleted:', productId);
+            // Reload the page or update the product list
+            window.location.reload();
+          } else {
+            console.error('Error deleting product:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error deleting product:', error))
+        .finally(() => {
+          // Hide the confirmation modal
+          $('#confirmDeleteModal').modal('hide');
+          // Reset the global variable
+          window.productIdToDelete = null;
+        });
     }
-  </script>
-  <style>
-    /* Add this style to control the max width and height of the images */
-    .product-image {
-      max-width: 100px;
-      max-height: 100px;
-    }
-  </style>
+  }
+
+</script>
+<style>
+  .product-image {
+    max-width: 100px;
+    max-height: 100px;
+  }
+</style>
 
 {% endblock %}

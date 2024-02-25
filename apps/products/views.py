@@ -9,6 +9,8 @@ from .forms import ProductForm
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 
 class CreateProductAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
@@ -28,3 +30,14 @@ def my_products_view(request):
 class CreateProductAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    
+
+class ProductDeleteAPIView(APIView):
+    def delete(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({'detail': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        product.delete()
+        return Response({'detail': 'Product deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
