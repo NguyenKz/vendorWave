@@ -52,20 +52,17 @@ def sign_up(request):
 
 class LogoutView(APIView):
     def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            refresh_token = request.COOKIES.get('refresh')
-            if refresh_token:
-                try:
-                    token = RefreshToken(refresh_token)
-                    token.blacklist()
-                except Exception as e:
-                    pass
-            response = Response()
-            response.delete_cookie('access')
-            response.delete_cookie('refresh')
-            response.delete_cookie('sessionid')
-            response.data = {'detail': 'Logout successful'}
-            logout(request=request)
-            return response
-        return Response(status=status.HTTP_200_OK)
+        refresh_token = request.COOKIES.get('refresh')
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception as e:
+                pass
+        response = Response()
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+        response.data = {'detail': 'Logout successful'}
+        logout(request=request)
+        return response
         

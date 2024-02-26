@@ -82,7 +82,7 @@
                     var accessToken = getCookie('access');
                     fetch("/user/logout/", {
                         method: 'POST',
-                        headers: makeHeader(),
+                        headers: sampleHeader(),
                         credentials: 'same-origin'
                     }).then(function (response) {
                         if (response.ok) {

@@ -18,3 +18,11 @@ function makeHeader(){
         'Authorization': getAuthorization(),
     }
 }
+
+function sampleHeader(){
+    return {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+}
