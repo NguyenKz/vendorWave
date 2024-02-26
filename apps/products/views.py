@@ -20,7 +20,7 @@ class CreateProductAPIView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-@login_required  # Đảm bảo rằng người dùng đã đăng nhập mới có thể truy cập trang này
+@login_required(login_url="/user/login/")
 def my_products_view(request):
     user_products = Product.objects.filter(merchant=request.user.merchant)
     return render(request, 'my_products.html', {'user_products': user_products})

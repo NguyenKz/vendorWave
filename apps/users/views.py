@@ -32,16 +32,13 @@ class LoginView(APIView):
         refresh_token = str(refresh)
         response = Response()
         request.session.create()
-        session_id = request.session.session_key
         
         response.set_cookie(key="access",value=access_token)
         response.set_cookie(key="refresh",value=refresh_token)
-        # response.set_cookie(key="sessionid",value=session_id)
         
         response.data = {
             'access': access_token,
             'refresh': refresh_token,
-            # "sessionid":session_id
         }
         response.status_code = status.HTTP_200_OK
         return response
