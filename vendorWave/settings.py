@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'decouple',
     'apps.merchants.apps.MerchantsConfig',
-    'apps.products.apps.ProductsConfig'
+    'apps.products.apps.ProductsConfig',
+    'apps.promotions.apps.PromotionsConfig'
 ]
 
 MIDDLEWARE = [
@@ -63,7 +64,8 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR, 'apps/users/templates'),
             os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'apps/home/templates')
+            os.path.join(BASE_DIR, 'apps/home/templates'),
+            os.path.join(BASE_DIR, 'apps/promotions/templates')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
